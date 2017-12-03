@@ -1,0 +1,41 @@
+{% extends 'blog/base.html' %}
+
+{%block content%}
+        <div class="post">
+            <a class="btn btn-default" href="{% url 'post_remove' pk=post.pk %}">
+                <span class="glyphicon glyphicon-remove"></span></a>
+            {% if post.yayinlanma_tarihi %}
+                <p class="date">{{post.yayinlanma_tarihi}}</p>
+            {% else %}
+                <a class="btn btn-default" href="{% url 'post_publish' pk=post.pk %}">Yayinla</a>
+            {% endif %}
+            <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}">
+                <span class="glyphicon glyphicon-edit"></span></a>
+            <h1>{{post.baslik}}</h1>
+            <p>{{post.yazi|linebreaks}}</p>
+        </div>    
+
+    <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=post.pk %}">Yorum Ekle</a>
+
+<hr>
+{% for comment in post.comments.all %}
+    {% if user.is_authenticated or comment.onaylanma_durumu %}
+    <div class="comment">
+        <div class="date">
+            {{ comment.yaratilma_tarihi }}
+            {% if not comment.onaylanma_durumu %}
+                <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}">
+                    <span class="glyphicon glyphicon-ok"></span></a>
+                <a class="btn btn-default href="{% url 'comment_remove' pk=comment.pk %}">
+                    <span class="glyphicon glyphicon-remove"></span></a>
+            {%endif%}
+        </div>
+        <strong>{{ comment.yazar }}</strong>
+        <p>{{ comment.yazi|linebreaks }}</p>
+    </div>
+    {%endif%}
+{% empty %}
+    <p>Henüz yorum yok</p>
+{% endfor %}
+
+{%endblock%}
