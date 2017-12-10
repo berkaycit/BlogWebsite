@@ -26,6 +26,9 @@ SECRET_KEY = 'xthdyet8vzb#(tdy-*z^uj_)gcbfv!^-%$yy%bt8d&7_!a3d(='
 DEBUG = True
 
 LOGIN_REDIRECT_URL = '/'
+PASSWORD_RESET_TIMEOUT_DAYS = 7
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 ALLOWED_HOSTS = []
 
@@ -122,4 +125,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+MEDIA_URL = "/media/"
 

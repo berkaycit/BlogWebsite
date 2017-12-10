@@ -1,0 +1,16 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+
+<form method="POST" class="post-form">
+    {% csrf_token %}
+    {{form.as_p}}
+
+    <button class="btn save btn-default" type="submit">
+        Send
+    </button>
+
+</form>
+
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+
+    <div class="profile">
+        <img width="150px" src="/media/{{profile.avatar}}" >
+        <br>
+        <h1>{{user.username}}</h1>
+        <p>{{user.email}}</p>
+        <br>
+        Information About User
+        <p>{{profile.info}}</p>
+        <p>{{profile.gender}}</p>
+
+        {% if request.user.id == user.pk %}
+            <button class="btn save btn-default"><a href="{% url 'profile_edit' profile_id=user.pk %}"> Edit Your Profile</a></button>
+        {% endif %}
+
+
+    </div>
+{%endblock%}

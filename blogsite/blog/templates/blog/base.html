@@ -1,6 +1,6 @@
 {% load staticfiles %}
-  
-<html>
+
+<html xmlns:margin="http://www.w3.org/1999/xhtml">
     <head>
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
@@ -51,10 +51,10 @@
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'post_draft_list' %}"><span class="glyphicon glyphicon-edit"></span> Drafts</a></li>
                     <li><a href="{% url 'post_new' %}"><span class="glyphicon glyphicon-plus"></span> Add</a></li>
-                    <li><a href="#"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+                    <li><a href="{% url 'user_profile' profile_id=user.pk %}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
                     <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
                 {% else %}
-                    <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li><a href="{% url 'signup' %}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
                     <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 
                 {% endif %}
@@ -74,6 +74,25 @@
                     {% block content %}
                     {% endblock %}
                 </div>
+
+
+                <div class="col-md-4">
+                    <nav role="navigation">
+                        <table style="margin-left: 50px; ">
+
+                            <tr>
+                                <td><h1><a>Latest</a></h1></td>
+                                <td><h1><a>Populer</a></h1></td>
+                            </tr>
+
+                            {% for post in last_ten_posts %}
+                                <tr><td><a href="{% url 'post_detail' pk=post.pk %}">{{post.baslik}}</a></td></tr>
+                            {% endfor %}
+
+                        </table>
+                    </nav>
+                </div>
+
             </div>
         </div>
 
