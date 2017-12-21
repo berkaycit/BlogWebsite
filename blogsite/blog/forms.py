@@ -7,7 +7,8 @@ class PostForm(forms.ModelForm):
     
     class Meta:
         model = Post
-        fields = ('baslik', 'yazi',)
+        #TODO: default ismini değiştirmek
+        fields = ('baslik', 'yazi', 'tur', )
 
 
 class CommentForm(forms.ModelForm):

@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from .models import Post, Comment, Profile
+from .models import Post, Comment, Profile, Like
 from .forms import PostForm, CommentForm, SignUpForm, ProfileForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
+from django.views.generic import TemplateView, ListView
+from django.db.models import Q
 
 
 def post_list(request):
@@ -15,7 +17,16 @@ def post_list(request):
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    return render(request, 'blog/post_detail.html', {'post': post})
+    number_of_likes = post.likes.all().count()
+    return render(request, 'blog/post_detail.html', {'post': post, 'likes': number_of_likes})
+
+def post_cat(request, pk):
+    posts = Post.objects.filter(Q(tur__iexact=pk[0]),
+                                Q(yayinlanma_tarihi__lte=timezone.now())
+                                ).order_by('-yayinlanma_tarihi')
+
+    last_ten_posts = Post.objects.filter(yayinlanma_tarihi__lte=timezone.now()).order_by('-yayinlanma_tarihi')[:10]
+    return render(request, 'blog/post_list.html', {'posts': posts, 'last_ten_posts': last_ten_posts})
 
 
 @login_required
@@ -133,3 +144,53 @@ def profile_edit(request, profile_id):
         form = ProfileForm()
 
     return render(request, 'blog/profile_edit.html', {'user': user, 'form': form, 'profile': profile})
+
+#TODO: html den dolayı 2 defa request atıyor. -> düzeltilmesi lazım
+def post_like(request, article_id):
+
+    new_like = Like.objects.get_or_create(user=request.user, article_id=article_id)
+    print("kac defa calisiyor")
+
+    return redirect('post_list')
+
+'''
+    try:
+        created = Like.objects.get(user=request.user, article_id=article_id)
+    except:
+        created = None
+
+    print("kontrol yapildi")
+
+    if not created:
+        print("olusturuldu")
+        Like.objects.create(user=request.user, article_id=article_id)
+    else:
+        print("silindi")
+        created.delete()
+
+    return redirect('post_detail', pk=article_id)
+'''
+
+'''
+    user = request.user
+    article = get_object_or_404(Post, pk=article_id)
+    
+    if user in article.likes.all():
+        print("buraya girmiyor")
+        new_like = Like.objects.get(user=request.user, article_id=article_id)
+        new_like.delete()
+    else:
+        print("buraya giriyor")
+        print(user)
+        print("---------")
+        print(article.likes.all())
+        Like.objects.create(user=request.user, article_id=article_id)
+    return redirect('post_detail', pk=article_id)
+'''
+
+'''
+
+def article_detail(request, id):
+    article = get_object_or_404(Post, pk=id)
+    user_likes_this = article.like_set.filter(user=request.user) and True or False
+'''

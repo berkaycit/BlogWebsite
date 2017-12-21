@@ -5,12 +5,20 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 class Post(models.Model):
+
+    genre_dict = {
+        "Games": "G",
+        "Movies": "M"
+    }
+
+    GENRE_CHOICES = [(code, label) for label, code in genre_dict.items()]
+
     yazar = models.ForeignKey('auth.User')
     baslik = models.CharField(max_length=200)
     yazi = models.TextField()
     yaratilma_tarihi = models.DateTimeField(default=timezone.now())
     yayinlanma_tarihi = models.DateTimeField(blank=True, null=True)
-
+    tur = models.CharField(max_length=200, choices=GENRE_CHOICES, default='G')
 
     def yayinla(self):
         self.yayinlanma_tarihi = timezone.now()
@@ -63,3 +71,6 @@ def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
 
+class Like(models.Model):
+    user = models.ForeignKey(User)
+    article = models.ForeignKey(Post, related_name='likes')
