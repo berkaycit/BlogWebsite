@@ -11,7 +11,16 @@ class Post(models.Model):
         "Movies": "M"
     }
 
+    rating = {
+        "Bad": "1",
+        "Average": "2",
+        "Good": "3",
+        "Best": "4",
+        "Masterpiece": "5"
+    }
+
     GENRE_CHOICES = [(code, label) for label, code in genre_dict.items()]
+    RATING_CHOICES = [(code, label) for label, code in rating.items()]
 
     yazar = models.ForeignKey('auth.User')
     baslik = models.CharField(max_length=200)
@@ -19,6 +28,7 @@ class Post(models.Model):
     yaratilma_tarihi = models.DateTimeField(default=timezone.now())
     yayinlanma_tarihi = models.DateTimeField(blank=True, null=True)
     tur = models.CharField(max_length=200, choices=GENRE_CHOICES, default='G')
+    puan = models.CharField(max_length=200, choices=RATING_CHOICES, default=1)
 
     def yayinla(self):
         self.yayinlanma_tarihi = timezone.now()
@@ -47,7 +57,10 @@ class Comment(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     info = models.TextField(max_length=240, blank=True, null=True)
-    avatar = models.ImageField(upload_to="user_imgs", blank=True, null=True)
+    avatar = models.ImageField(blank=True, null=True, default ='indiedeveloper.jpg')
+    followers = models.ManyToManyField(User, related_name='is_following', blank = True)
+    #person.profile.followers.all() ->takipçilerim
+    #person..is_following.all() ->kimi takip ediyorum
 
     genders = (
         ('M', 'Male'),
@@ -63,7 +76,8 @@ class Profile(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        profile = Profile.objects.create(user=instance)
+        profile.followers.add(2) #id 2 kullanıcıyı direk yeni kullanıcının takipçisi yapıyoruz
 
 
 @receiver(post_save, sender=User)

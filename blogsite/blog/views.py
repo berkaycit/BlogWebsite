@@ -120,10 +120,19 @@ def signup(request):
 
 def user_profile(request, profile_id):
 
+    is_following = False
+
     user = get_object_or_404(User, pk=profile_id)
     profile = get_object_or_404(Profile, user=user)
 
-    return render(request, 'blog/profile.html', {'user': user, 'profile': profile})
+    if profile in request.user.is_following.all():
+        is_following = True
+
+    last_posts = Post.objects.filter(Q(yazar=profile_id),
+                                         Q(yayinlanma_tarihi__lte=timezone.now())
+                                         ).order_by(('-puan'))[:10]
+
+    return render(request, 'blog/profile.html', {'user': user, 'profile': profile, 'last_posts': last_posts, 'is_following': is_following})
 
 
 def profile_edit(request, profile_id):
@@ -133,7 +142,8 @@ def profile_edit(request, profile_id):
         form = ProfileForm(request.POST)
         if form.is_valid():
             info = form.cleaned_data.get('info')
-            avatar = request.POST.get('avatar', None)
+            avatar = form.cleaned_data['avatar'] #request.POST.get('avatar', None)
+            print(form.cleaned_data['avatar'])
             gender = request.POST.get('gender', None)
             profile.info = info
             profile.avatar = avatar
@@ -145,52 +155,38 @@ def profile_edit(request, profile_id):
 
     return render(request, 'blog/profile_edit.html', {'user': user, 'form': form, 'profile': profile})
 
-#TODO: html den dolayı 2 defa request atıyor. -> düzeltilmesi lazım
+
 def post_like(request, article_id):
 
-    new_like = Like.objects.get_or_create(user=request.user, article_id=article_id)
-    print("kac defa calisiyor")
-
-    return redirect('post_list')
-
-'''
     try:
         created = Like.objects.get(user=request.user, article_id=article_id)
     except:
         created = None
 
-    print("kontrol yapildi")
+    #print("kontrol yapildi")
 
     if not created:
-        print("olusturuldu")
+        #print("olusturuldu")
         Like.objects.create(user=request.user, article_id=article_id)
     else:
-        print("silindi")
+        #print("silindi")
         created.delete()
 
-    return redirect('post_detail', pk=article_id)
-'''
+    return redirect('post_list')
 
-'''
+@login_required
+def profile_follow_toggle(request):
     user = request.user
-    article = get_object_or_404(Post, pk=article_id)
-    
-    if user in article.likes.all():
-        print("buraya girmiyor")
-        new_like = Like.objects.get(user=request.user, article_id=article_id)
-        new_like.delete()
-    else:
-        print("buraya giriyor")
-        print(user)
-        print("---------")
-        print(article.likes.all())
-        Like.objects.create(user=request.user, article_id=article_id)
-    return redirect('post_detail', pk=article_id)
-'''
+    user_to_toggle = request.POST.get("username")
+    profile_ = Profile.objects.get(user__username__iexact=user_to_toggle)
 
-'''
+    if user in profile_.followers.all(): #bir kişiyi takip ediyorsa zaten
+        profile_.followers.remove(user) #listeden çıkar
+    else: #takip etmiyorsa
+        profile_.followers.add(user) #listeye ekle
 
-def article_detail(request, id):
-    article = get_object_or_404(Post, pk=id)
-    user_likes_this = article.like_set.filter(user=request.user) and True or False
-'''
+    #print(user_to_toggle)
+    return redirect('user_profile', profile_id=profile_.user.pk)
+
+def report(request):
+    return render(request, 'blog/report.html')

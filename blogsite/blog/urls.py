@@ -6,9 +6,11 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    url(r'^$', views.post_list, name='post_list'), 
+    url(r'^$', views.post_list, name='post_list'),
+    url(r'^report/$', views.report, name='report'),
     url(r'^post/(?P<pk>[0-9]+)/$', views.post_detail, name='post_detail'),
     url(r'^blog/(?P<pk>\w+)/$', views.post_cat, name='post_cat'),
+    url(r'^follow/$', views.profile_follow_toggle, name='follow'),
     url(r'^post/new/$', views.post_new, name='post_new'),
     url(r'^post/(?P<pk>[0-9]+)/edit/$', views.post_edit, name='post_edit'),
     url(r'^post/(?P<article_id>[0-9]+)/like/$', views.post_like, name='post_like'),
@@ -23,8 +25,5 @@ urlpatterns = [
     url(r'^profile/(?P<profile_id>\d+)/edit/$', views.profile_edit, name='profile_edit'),
 ]
 
-urlpatterns += static(settings.MEDIA_URL,
-                      document_root=settings.MEDIA_ROOT)
-
-urlpatterns += static(settings.STATIC_URL,
-                      document_root=settings.STATIC_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

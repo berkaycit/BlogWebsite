@@ -2,20 +2,52 @@
 
 {% block content %}
 
-    <div class="profile">
-        <img width="150px" src="/media/{{profile.avatar}}" >
-        <br>
-        <h1>{{user.username}}</h1>
-        <p>{{user.email}}</p>
-        <br>
-        Information About User
-        <p>{{profile.info}}</p>
-        <p>{{profile.gender}}</p>
+    <div style="background:#C4C4C4; padding:32px;  border-radius: 5px;" class="profile">
+        <div style="float:left; margin-right:20px" class="user-avatar">
+            <img width="240px" src="/media/{{profile.avatar}}" >
+        </div>
 
         {% if request.user.id == user.pk %}
-            <button class="btn save btn-default"><a href="{% url 'profile_edit' profile_id=user.pk %}"> Edit Your Profile</a></button>
+        <div style="float: up!important;" class="pull-right">
+            <button class="btn btn-info btn-lg"><a style="text-decoration:none; color:white; font-size:14px;" href="{% url 'profile_edit' profile_id=user.pk %}">
+                <span class="glyphicon glyphicon-wrench"></span> Edit Profile</a></button>
+        </div>
+
+        {%else%}
+            <p style="float: left!important">{% include 'blog/follow_form.html' with username=user.username is_following=is_following %}</p>
         {% endif %}
 
+        <div class="user-info">
+            <h1 style="font-size:30px;">{{user.username}}</h1>
+            <p>{{user.email}}</p>
+        </div>
+
+        Information About User
+        <p>{{profile.info}}</p>
+        {%if profile.gender == 'M' %}
+            <p>Gender:Male</p>
+        {%else %}
+            <p>Gender:Female</p>
+        {%endif%}
 
     </div>
+
+
+    <table class="rating-table">
+
+          <tr class="rating-row">
+            <th class="rating-header">Post</th>
+            <th class="rating-header">Rating</th>
+            <th class="rating-header">Like</th>
+          </tr>
+
+        {% for post in last_posts %}
+            <tr class="rating-row"><td class="rating-data"><a href="{% url 'post_detail' pk=post.pk %}">{{post.baslik}}</a></td>
+            <td class="rating-data"><a href="{% url 'post_detail' pk=post.pk %}">{{post.puan}}</a></td>
+            <td class="rating-data"><a href="{% url 'post_detail' pk=post.pk %}">{{post.likes.count}}</a></td>
+            </tr>
+        {% endfor %}
+
+    </table>
+
 {%endblock%}
